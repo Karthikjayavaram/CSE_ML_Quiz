@@ -195,7 +195,7 @@ const Quiz = () => {
     const duration = Math.floor((Date.now() - startTimeRef.current) / 1000);
     
     try {
-      const API_BASE = `http://${window.location.hostname}:5000/api`;
+      const API_BASE = config.API_BASE;
       await axios.post(`${API_BASE}/quiz/submit`, {
         techziteId: student.techziteId,
         score,
