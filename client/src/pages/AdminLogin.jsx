@@ -15,7 +15,11 @@ const AdminLogin = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError('');
-    const credentials = btoa(`${username}:${password}`);
+    
+    // Trim inputs to avoid whitespace issues
+    const trimmedUser = username.trim();
+    const trimmedPass = password.trim();
+    const credentials = btoa(`${trimmedUser}:${trimmedPass}`);
     
     try {
       await axios.get(`${config.API_BASE}/admin/violations`, {

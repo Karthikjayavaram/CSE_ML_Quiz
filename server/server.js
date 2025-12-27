@@ -37,7 +37,9 @@ const adminAuth = (req, res, next) => {
     const expectedPass = (process.env.ADMIN_PASSWORD || '').trim();
 
     if (!credentials || credentials.name !== expectedUser || credentials.pass !== expectedPass) {
-        console.log(`Admin login attempt failed for user: ${credentials?.name}`);
+        console.log(`[AUTH] Admin login failed.`);
+        console.log(`[AUTH] Sent User: "${credentials?.name}", Expected: "${expectedUser}"`);
+        console.log(`[AUTH] Password Match: ${credentials?.pass === expectedPass}`);
         res.set('WWW-Authenticate', 'Basic realm="example"');
         return res.status(401).send('Authentication required');
     }
