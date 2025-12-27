@@ -33,7 +33,11 @@ mongoose.connect(process.env.MONGODB_URI, {
 // Admin Basic Auth Middleware
 const adminAuth = (req, res, next) => {
     const credentials = auth(req);
-    if (!credentials || credentials.name !== process.env.ADMIN_USERNAME || credentials.pass !== process.env.ADMIN_PASSWORD) {
+    const expectedUser = (process.env.ADMIN_USERNAME || '').trim();
+    const expectedPass = (process.env.ADMIN_PASSWORD || '').trim();
+
+    if (!credentials || credentials.name !== expectedUser || credentials.pass !== expectedPass) {
+        console.log(`Admin login attempt failed for user: ${credentials?.name}`);
         res.set('WWW-Authenticate', 'Basic realm="example"');
         return res.status(401).send('Authentication required');
     }
@@ -427,4 +431,5 @@ io.on('connection', (socket) => {
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
+    console.log(`Admin login configured for user: ${(process.env.ADMIN_USERNAME || '').trim()}`);
 });

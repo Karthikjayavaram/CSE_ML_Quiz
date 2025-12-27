@@ -21,11 +21,22 @@ const AdminLogin = () => {
       await axios.get(`${config.API_BASE}/admin/violations`, {
         headers: { Authorization: `Basic ${credentials}` }
       });
-      localStorage.setItem('adminAuth', credentials); // Store credentials on successful login
+      localStorage.setItem('adminAuth', credentials);
       setIsAdmin(true);
       navigate('/admin/dashboard');
     } catch (error) {
-      setError('Invalid admin credentials');
+      if (error.response) {
+        if (error.response.status === 401) {
+          setError('Invalid admin credentials (401)');
+        } else {
+          setError(`Server error: ${error.response.status}`);
+        }
+      } else if (error.request) {
+        setError('Server unreachable. Is the backend running?');
+      } else {
+        setError('Login request failed');
+      }
+      console.error('Admin login error:', error);
     }
   };
 
