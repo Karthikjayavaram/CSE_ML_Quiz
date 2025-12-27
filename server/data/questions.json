@@ -1,0 +1,222 @@
+[
+    {
+        "question": "Which of the following metrics is most suitable for evaluating a classification model on a highly imbalanced dataset (e.g., fraud detection)?",
+        "options": [
+            "Accuracy",
+            "F1-Score",
+            "Mean Squared Error",
+            "R-Squared"
+        ],
+        "correctAnswer": "F1-Score",
+        "explanation": "Accuracy can be misleading on imbalanced datasets. F1-Score considers both precision and recall."
+    },
+    {
+        "question": "What happens to the Bias and Variance when you increase the complexity of a machine learning model?",
+        "options": [
+            "Bias increases, Variance decreases",
+            "Bias decreases, Variance increases",
+            "Both increase",
+            "Both decrease"
+        ],
+        "correctAnswer": "Bias decreases, Variance increases",
+        "explanation": "Increasing complexity allows the model to fit data better (lower bias) but makes it more sensitive to noise (higher variance)."
+    },
+    {
+        "question": "In Lasso Regression (L1 regularization), why do some feature coefficients become exactly zero?",
+        "options": [
+            "It uses the square of the weights",
+            "The penalty is based on the absolute value of the weights",
+            "It only works for linear models",
+            "It minimizes the log-likelihood"
+        ],
+        "correctAnswer": "The penalty is based on the absolute value of the weights",
+        "explanation": "L1 regularization uses an absolute value penalty which has a 'corner' at zero, causing many weights to diminish to zero."
+    },
+    {
+        "question": "What is the primary function of the 'Kernel Trick' in Support Vector Machines (SVM)?",
+        "options": [
+            "To reduce the number of features",
+            "To transform data into a higher-dimensional space for linear separation",
+            "To speed up the training process",
+            "To remove outliers from the dataset"
+        ],
+        "correctAnswer": "To transform data into a higher-dimensional space for linear separation",
+        "explanation": "Kernels allow SVMs to perform non-linear classification by implicitly mapping inputs into high-dimensional feature spaces."
+    },
+    {
+        "question": "Which ensemble method builds multiple trees independently and averages their predictions to reduce variance?",
+        "options": [
+            "AdaBoost",
+            "XGBoost",
+            "Random Forest",
+            "Gradient Boosting"
+        ],
+        "correctAnswer": "Random Forest",
+        "explanation": "Random Forest uses 'Bagging' (Bootstrap Aggregating) to build trees in parallel and average them."
+    },
+    {
+        "question": "In Neural Networks, what is the purpose of the 'Softmax' activation function in the output layer?",
+        "options": [
+            "To introduce non-linearity",
+            "To prevent vanishing gradients",
+            "To produce a probability distribution over multiple classes",
+            "To normalize input data"
+        ],
+        "correctAnswer": "To produce a probability distribution over multiple classes",
+        "explanation": "Softmax ensures the output values sum to 1, representing probabilities for each class."
+    },
+    {
+        "question": "What is the primary goal of Principal Component Analysis (PCA)?",
+        "options": [
+            "Classification",
+            "Feature Selection",
+            "Dimensionality Reduction",
+            "Clustering"
+        ],
+        "correctAnswer": "Dimensionality Reduction",
+        "explanation": "PCA transforms data into a lower-dimensional space while retaining as much variance as possible."
+    },
+    {
+        "question": "Which optimization algorithm adaptively changes the learning rate for each parameter based on past gradients?",
+        "options": [
+            "Stochastic Gradient Descent (SGD)",
+            "Adam",
+            "Momentum",
+            "Nesterov Accelerated Gradient"
+        ],
+        "correctAnswer": "Adam",
+        "explanation": "Adam (Adaptive Moment Estimation) maintains per-parameter learning rates."
+    },
+    {
+        "question": "In Market Basket Analysis, 'Lift' is defined as:",
+        "options": [
+            "The probability that B occurs given A",
+            "The ratio of observed support to that expected if A and B were independent",
+            "The percentage of transactions containing both A and B",
+            "The popularity of item A"
+        ],
+        "correctAnswer": "The ratio of observed support to that expected if A and B were independent",
+        "explanation": "Lift measures how much more likely item B is purchased given item A, compared to its general popularity."
+    },
+    {
+        "question": "Which problem occurs when a neural network is too deep and gradients become extremely small during backpropagation?",
+        "options": [
+            "Exploding Gradient Problem",
+            "Overfitting",
+            "Vanishing Gradient Problem",
+            "Underfitting"
+        ],
+        "correctAnswer": "Vanishing Gradient Problem",
+        "explanation": "Vanishing gradients prevent early layers from learning effectively in deep networks."
+    },
+    {
+        "question": "What does a ROC curve (Receiver Operating Characteristic) plot?",
+        "options": [
+            "Precision vs Recall",
+            "True Positive Rate vs False Positive Rate",
+            "Accuracy vs Loss",
+            "Bias vs Variance"
+        ],
+        "correctAnswer": "True Positive Rate vs False Positive Rate",
+        "explanation": "ROC curve shows the tradeoff between sensitivity and specificity at various thresholds."
+    },
+    {
+        "question": "If your model performs very well on training data but poorly on test data, it is likely suffering from:",
+        "options": [
+            "High Bias",
+            "Overfitting",
+            "Underfitting",
+            "Data Leakage"
+        ],
+        "correctAnswer": "Overfitting",
+        "explanation": "Overfitting occurs when the model learns noise and specific details of the training set."
+    },
+    {
+        "question": "Which SVM kernel is typically used when the relationship between features is unknown and likely non-linear?",
+        "options": [
+            "Linear Kernel",
+            "Polynomial Kernel",
+            "RBF (Radial Basis Function) Kernel",
+            "Sigmoid Kernel"
+        ],
+        "correctAnswer": "RBF (Radial Basis Function) Kernel",
+        "explanation": "RBF is the most versatile and commonly used non-linear kernel."
+    },
+    {
+        "question": "The 'Support Vectors' in SVM are:",
+        "options": [
+            "The outliers in the dataset",
+            "The points furthest from the hyperplane",
+            "The points closest to or on the decision boundary",
+            "Points that are incorrectly classified"
+        ],
+        "correctAnswer": "The points closest to or on the decision boundary",
+        "explanation": "Support vectors define the maximum margin hyperplane."
+    },
+    {
+        "question": "Batch Normalization is used in neural networks primarily to:",
+        "options": [
+            "Increase dropout rate",
+            "Stabilize and speed up training by normalizing layer inputs",
+            "Reduce the number of neurons",
+            "Prevent the network from being too shallow"
+        ],
+        "correctAnswer": "Stabilize and speed up training by normalizing layer inputs",
+        "explanation": "It reduces internal covariate shift."
+    },
+    {
+        "question": "K-Means clustering is what type of learning algorithm?",
+        "options": [
+            "Supervised",
+            "Unsupervised",
+            "Reinforcement",
+            "Semi-supervised"
+        ],
+        "correctAnswer": "Unsupervised",
+        "explanation": "It groups data without pre-labeled targets."
+    },
+    {
+        "question": "In the context of Ridge Regression (L2), how does the lambda parameter affect the model?",
+        "options": [
+            "Larger lambda increases the weights",
+            "Larger lambda forces weights towards zero but not exactly zero",
+            "Smaller lambda increases bias",
+            "Lambda has no effect on model complexity"
+        ],
+        "correctAnswer": "Larger lambda forces weights towards zero but not exactly zero",
+        "explanation": "L2 regularization penalizes the square of the weights, leading to smaller coefficients."
+    },
+    {
+        "question": "Cross-validation is used primarily to:",
+        "options": [
+            "Speed up training",
+            "Select the best activation function",
+            "Estimate how well a model will generalize to an independent dataset",
+            "Increase the size of the training set"
+        ],
+        "correctAnswer": "Estimate how well a model will generalize to an independent dataset",
+        "explanation": "It helps in assessing the model's performance on unseen data reliably."
+    },
+    {
+        "question": "What is the purpose of 'Dropout' in a Neural Network?",
+        "options": [
+            "To speed up inference",
+            "To prevent overfitting by randomly disabling neurons during training",
+            "To increase the learning rate",
+            "To replace activation functions"
+        ],
+        "correctAnswer": "To prevent overfitting by randomly disabling neurons during training",
+        "explanation": "Dropout is a regularization technique that prevents co-adaptation of neurons."
+    },
+    {
+        "question": "Which algorithm uses the concept of 'Finding the best split by maximizing Information Gain'?",
+        "options": [
+            "Support Vector Machines",
+            "Decision Tree",
+            "K-Nearest Neighbors",
+            "Linear Regression"
+        ],
+        "correctAnswer": "Decision Tree",
+        "explanation": "Decision trees use Information Gain or Gini Impurity to determine the best features to split on."
+    }
+]
