@@ -47,15 +47,15 @@ const Rules = () => {
         <div className="rules-list">
           <div className="rule-item">
             <Info size={20} className="icon-blue" />
-            <p><strong>Time Limit:</strong> Each question has 45 seconds. The timer will auto-submit.</p>
-          </div>
-          <div className="rule-item">
-            <AlertTriangle size={20} className="icon-yellow" />
-            <p><strong>Navigation:</strong> No backward navigation is allowed. Once submitted, you cannot revisit.</p>
+            <p><strong>Time Limit:</strong> Each question has 45 seconds. The timer will <strong>AUTO-SUBMIT</strong> your answer once time runs out.</p>
           </div>
           <div className="rule-item">
             <AlertTriangle size={20} className="icon-red" />
-            <p><strong>Anti-Cheating:</strong> Tab switching, window minimization, or exiting full screen will be flagged.</p>
+            <p><strong>Strict Policy:</strong> <strong>DO NOT SWITCH TABS</strong> or minimize the window. Any such action will immediately LOCK your quiz.</p>
+          </div>
+          <div className="rule-item">
+            <AlertTriangle size={20} className="icon-yellow" />
+            <p><strong>Navigation:</strong> No backward navigation is allowed. Once submitted, you cannot revisit previous questions.</p>
           </div>
           <div className="rule-item">
             <Info size={20} className="icon-blue" />

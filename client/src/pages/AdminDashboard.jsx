@@ -82,6 +82,7 @@ const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('monitoring');
     const [violations, setViolations] = useState([]);
     const [students, setStudents] = useState([]);
+    const [highViolationStudents, setHighViolationStudents] = useState([]);
     const [results, setResults] = useState([]);
     const [dbData, setDbData] = useState([]);
     const [selectedCollection, setSelectedCollection] = useState('students');
@@ -89,6 +90,8 @@ const AdminDashboard = () => {
     const [editingItem, setEditingItem] = useState(null);
     const [editForm, setEditForm] = useState({});
     const [showAddModal, setShowAddModal] = useState(false);
+    const [showQuestionModal, setShowQuestionModal] = useState({ show: false, quizId: null, questionIndex: null });
+    const [questionForm, setQuestionForm] = useState({ question: '', options: ['', '', '', ''], correctAnswer: '', explanation: '' });
     const [addForm, setAddForm] = useState({});
     const [confirmDelete, setConfirmDelete] = useState({ show: false, id: null, type: null });
     const { socket, logout } = useQuiz();
@@ -108,9 +111,10 @@ const AdminDashboard = () => {
             if (activeTab === 'monitoring') {
                 const resp = await axios.get(`${API_BASE}/admin/violations`, { headers });
                 setViolations(resp.data.filter(v => v.status === 'pending'));
-            } else if (activeTab === 'students') {
+            } else if (activeTab === 'management') {
                 const resp = await axios.get(`${API_BASE}/admin/students`, { headers });
                 setStudents(resp.data);
+                setHighViolationStudents(resp.data.filter(s => s.violationCount > 2));
             } else if (activeTab === 'results') {
                 const resp = await axios.get(`${API_BASE}/admin/results`, { headers });
                 setResults(resp.data);
@@ -198,9 +202,42 @@ const AdminDashboard = () => {
         try {
             await axios.put(`${API_BASE}/admin/db/quizzes/${activeQuiz._id}`, { questions: updatedQuestions }, { headers });
             fetchData();
-            alert("Question added! You can now edit it in the database view.");
+            alert("Question added! You can now edit it.");
         } catch (err) {
             alert("Failed to add question");
+        }
+    };
+
+    const handleSaveQuestion = async () => {
+        const quiz = dbData.find(q => q._id === showQuestionModal.quizId);
+        if (!quiz) return;
+
+        let updatedQuestions = [...quiz.questions];
+        if (showQuestionModal.questionIndex !== null) {
+            updatedQuestions[showQuestionModal.questionIndex] = questionForm;
+        } else {
+            updatedQuestions.push(questionForm);
+        }
+
+        try {
+            await axios.put(`${API_BASE}/admin/db/quizzes/${quiz._id}`, { questions: updatedQuestions }, { headers });
+            setShowQuestionModal({ show: false, quizId: null, questionIndex: null });
+            fetchData();
+        } catch (err) {
+            alert("Failed to save question");
+        }
+    };
+
+    const handleDeleteQuestion = async (quizId, qIndex) => {
+        if (!window.confirm("Are you sure you want to delete this question?")) return;
+        const quiz = dbData.find(q => q._id === quizId);
+        const updatedQuestions = quiz.questions.filter((_, i) => i !== qIndex);
+        
+        try {
+            await axios.put(`${API_BASE}/admin/db/quizzes/${quiz._id}`, { questions: updatedQuestions }, { headers });
+            fetchData();
+        } catch (err) {
+            alert("Failed to delete question");
         }
     };
 
@@ -212,8 +249,8 @@ const AdminDashboard = () => {
                     <button className={activeTab === 'monitoring' ? 'active' : ''} onClick={() => setActiveTab('monitoring')}>
                         <AlertTriangle size={20} /> LIVE MONITORING
                     </button>
-                    <button className={activeTab === 'students' ? 'active' : ''} onClick={() => setActiveTab('students')}>
-                        <Users size={20} /> STUDENTS
+                    <button className={activeTab === 'management' ? 'active' : ''} onClick={() => setActiveTab('management')}>
+                        <Users size={20} /> MANAGEMENT
                     </button>
                     <button className={activeTab === 'results' ? 'active' : ''} onClick={() => setActiveTab('results')}>
                         <Trophy size={20} /> RESULTS
@@ -337,8 +374,32 @@ const AdminDashboard = () => {
                         </div>
                     )}
 
-                    {activeTab === 'students' && (
+                    {activeTab === 'management' && (
                         <div className="student-management">
+                            {highViolationStudents.length > 0 && (
+                                <div className="card glass mb-20 alert-section" style={{ borderLeft: '4px solid var(--error)' }}>
+                                    <h3 className="error" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <AlertTriangle size={24} /> INTIMATE ADMIN: CRITICAL VIOLATIONS
+                                    </h3>
+                                    <p className="mb-10">Students with more than 2 violations detected. Immediate action may be required.</p>
+                                    <div className="violation-alerts">
+                                        {highViolationStudents.map(s => (
+                                            <div key={s._id} className="alert-item glass py-10 px-15 mb-10" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderRadius: '8px' }}>
+                                                <div>
+                                                    <strong>{s.name}</strong> ({s.techziteId}) - <span className="error">{s.violationCount} Violations</span>
+                                                </div>
+                                                <button className="reject-btn sm" onClick={async () => {
+                                                    if (window.confirm(`Block ${s.name} from the quiz?`)) {
+                                                        await axios.put(`${API_BASE}/admin/db/students/${s._id}`, { status: 'blocked' }, { headers });
+                                                        fetchData();
+                                                    }
+                                                }}>BLOCK STUDENT</button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="card glass upload-section">
                                 <h3><Users size={20} /> Batch Student Upload</h3>
                                 <p>Upload an Excel file (.xlsx) with columns: <strong>techziteId, name, phone, email, branch</strong></p>
@@ -439,40 +500,129 @@ const AdminDashboard = () => {
                                     setShowAddModal(true);
                                     setAddForm({});
                                 }}>+ ADD NEW {selectedCollection.slice(0, -1).toUpperCase()}</button>
-                                <button className="btn-secondary" onClick={async () => {
-                                    if (window.confirm('This will clear all data and re-populate with dummy data. Continue?')) {
-                                        try {
-                                            const resp = await axios.post(`${API_BASE}/admin/seed`, {}, { headers });
-                                            alert(resp.data.message);
-                                            fetchData();
-                                        } catch (err) {
-                                            alert('Seed failed: ' + (err.response?.data?.message || err.message));
-                                        }
-                                    }
-                                }}>🌱 SEED DUMMY DATA</button>
                             </div>
 
                             <div className="db-content">
-                                <DynamicTable 
-                                    data={dbData} 
-                                    onEdit={handleEdit}
-                                    showDelete={selectedCollection !== 'results'}
-                                    onDelete={async (id) => {
-                                        if (window.confirm("Delete this entry?")) {
-                                            try {
-                                                await axios.delete(`${API_BASE}/admin/db/${selectedCollection}/${id}`, { headers });
-                                                fetchData();
-                                            } catch (err) {
-                                                alert('Delete failed: ' + (err.response?.data?.message || err.message));
+                                {selectedCollection === 'quizzes' ? (
+                                    <div className="quizzes-manager">
+                                        {dbData.map(quiz => (
+                                            <div key={quiz._id} className="quiz-card card glass mb-20">
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                                    <h3>{quiz.title} {quiz.isActive && <span className="status-badge success">ACTIVE</span>}</h3>
+                                                    <button className="btn-primary sm" onClick={() => {
+                                                        setShowQuestionModal({ show: true, quizId: quiz._id, questionIndex: null });
+                                                        setQuestionForm({ question: '', options: ['', '', '', ''], correctAnswer: '', explanation: '' });
+                                                    }}>+ NEW QUESTION</button>
+                                                </div>
+                                                <div className="questions-list">
+                                                    {quiz.questions.map((q, idx) => (
+                                                        <div key={idx} className="question-item glass p-15 mb-10" style={{ borderLeft: '3px solid var(--primary)' }}>
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                                <p><strong>Q{idx + 1}:</strong> {q.question}</p>
+                                                                <div className="actions">
+                                                                    <button className="edit-btn sm mr-5" onClick={() => {
+                                                                        setShowQuestionModal({ show: true, quizId: quiz._id, questionIndex: idx });
+                                                                        setQuestionForm(q);
+                                                                    }}>EDIT</button>
+                                                                    <button className="reject-btn sm" onClick={() => handleDeleteQuestion(quiz._id, idx)}>DELETE</button>
+                                                                </div>
+                                                            </div>
+                                                            <div className="options-grid mt-10" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', fontSize: '0.85rem' }}>
+                                                                {q.options.map((opt, i) => (
+                                                                    <div key={i} className={opt === q.correctAnswer ? 'success' : 'text-secondary'}>
+                                                                        {String.fromCharCode(65 + i)}) {opt} {opt === q.correctAnswer && <Check size={14} style={{ display: 'inline' }} />}
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <DynamicTable 
+                                        data={dbData} 
+                                        onEdit={handleEdit}
+                                        showDelete={selectedCollection !== 'results'}
+                                        onDelete={async (id) => {
+                                            if (window.confirm("Delete this entry?")) {
+                                                try {
+                                                    await axios.delete(`${API_BASE}/admin/db/${selectedCollection}/${id}`, { headers });
+                                                    fetchData();
+                                                } catch (err) {
+                                                    alert('Delete failed: ' + (err.response?.data?.message || err.message));
+                                                }
                                             }
-                                        }
-                                    }} 
-                                />
+                                        }} 
+                                    />
+                                )}
                             </div>
                         </div>
                     )}
                 </div>
             </div>
+
+            {/* Question Management Modal */}
+            {showQuestionModal.show && (
+                <div className="modal-overlay glass">
+                    <div className="card glass modal-content">
+                        <h2>{showQuestionModal.questionIndex !== null ? 'Edit Question' : 'Add New Question'}</h2>
+                        <div className="edit-form">
+                            <div className="input-group">
+                                <label>Question Text</label>
+                                <textarea 
+                                    value={questionForm.question} 
+                                    onChange={(e) => setQuestionForm({...questionForm, question: e.target.value})}
+                                    style={{ height: '80px' }}
+                                />
+                            </div>
+                            <div className="options-input" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                {questionForm.options.map((opt, i) => (
+                                    <div key={i} className="input-group">
+                                        <label>Option {String.fromCharCode(65 + i)}</label>
+                                        <input 
+                                            type="text" 
+                                            value={opt} 
+                                            onChange={(e) => {
+                                                const newOpts = [...questionForm.options];
+                                                newOpts[i] = e.target.value;
+                                                setQuestionForm({...questionForm, options: newOpts});
+                                            }}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="input-group">
+                                <label>Correct Answer</label>
+                                <select 
+                                    className="db-select" 
+                                    style={{ maxWidth: '100%' }}
+                                    value={questionForm.correctAnswer}
+                                    onChange={(e) => setQuestionForm({...questionForm, correctAnswer: e.target.value})}
+                                >
+                                    <option value="">Select Correct Option</option>
+                                    {questionForm.options.map((opt, i) => (
+                                        <option key={i} value={opt}>{String.fromCharCode(65 + i)}) {opt}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            <div className="input-group">
+                                <label>Explanation (Optional)</label>
+                                <input 
+                                    type="text" 
+                                    value={questionForm.explanation} 
+                                    onChange={(e) => setQuestionForm({...questionForm, explanation: e.target.value})}
+                                />
+                            </div>
+                        </div>
+                        <div className="modal-actions">
+                            <button className="btn-primary" onClick={handleSaveQuestion}>SAVE QUESTION</button>
+                            <button className="btn-secondary" onClick={() => setShowQuestionModal({ show: false, quizId: null, questionIndex: null })}>CANCEL</button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Edit Modal */}
             {editingItem && (
