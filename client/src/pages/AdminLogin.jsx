@@ -22,23 +22,20 @@ const AdminLogin = () => {
     const credentials = btoa(`${trimmedUser}:${trimmedPass}`);
     
     try {
-      await axios.get(`${config.API_BASE}/admin/violations`, {
-        headers: { Authorization: `Basic ${credentials}` }
+      const response = await axios.post(`${config.API_BASE}/admin/login`, {
+        username: trimmedUser,
+        password: trimmedPass
       });
-      localStorage.setItem('adminAuth', credentials);
+      
+      const authHeader = response.data.auth;
+      localStorage.setItem('adminAuth', authHeader);
       setIsAdmin(true);
       navigate('/admin/dashboard');
     } catch (error) {
       if (error.response) {
-        if (error.response.status === 401) {
-          setError('Invalid admin credentials (401)');
-        } else {
-          setError(`Server error: ${error.response.status}`);
-        }
-      } else if (error.request) {
-        setError('Server unreachable. Is the backend running?');
+        setError(error.response.data.message || `Error ${error.response.status}`);
       } else {
-        setError('Login request failed');
+        setError('Server unreachable. Is the backend running?');
       }
       console.error('Admin login error:', error);
     }
