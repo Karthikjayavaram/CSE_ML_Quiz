@@ -51,16 +51,21 @@ const Quiz = () => {
         const studentResp = await axios.get(`${API_BASE}/student/status/${student.techziteId}`);
         const latestStudent = studentResp.data;
         
+        if (latestStudent.status === 'completed') {
+            navigate('/completion');
+            return;
+        }
+
         if (latestStudent.status === 'blocked' || (latestStudent.violationCount && latestStudent.violationCount >= 2)) {
-          console.log(`[QUIZ DEBUG] Locking due to previous state: status=${latestStudent.status}, count=${latestStudent.violationCount}`);
-          violationRef.current = latestStudent.violationCount || 0;
-          setViolationCount(latestStudent.violationCount || 0);
-          setIsLocked(true);
-          setWarningMsg("LOCKED: Previous violations detected or account blocked. Admin approval required.");
+            console.log(`[QUIZ DEBUG] Locking due to previous state: status=${latestStudent.status}, count=${latestStudent.violationCount}`);
+            violationRef.current = latestStudent.violationCount || 0;
+            setViolationCount(latestStudent.violationCount || 0);
+            setIsLocked(true);
+            setWarningMsg("LOCKED: Previous violations detected or account blocked. Admin approval required.");
         } else {
-          console.log(`[QUIZ DEBUG] Student state OK. Violation sync: ${latestStudent.violationCount}`);
-          violationRef.current = latestStudent.violationCount || 0;
-          setViolationCount(latestStudent.violationCount || 0);
+            console.log(`[QUIZ DEBUG] Student state OK. Violation sync: ${latestStudent.violationCount}`);
+            violationRef.current = latestStudent.violationCount || 0;
+            setViolationCount(latestStudent.violationCount || 0);
         }
 
         const quizResp = await axios.get(`${API_BASE}/quiz/active`);

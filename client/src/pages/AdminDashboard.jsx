@@ -94,8 +94,30 @@ const AdminDashboard = () => {
     const [questionForm, setQuestionForm] = useState({ question: '', options: ['', '', '', ''], correctAnswer: '', explanation: '' });
     const [addForm, setAddForm] = useState({});
     const [confirmDelete, setConfirmDelete] = useState({ show: false, id: null, type: null });
+    const [socketConnected, setSocketConnected] = useState(false);
     const { socket, logout } = useQuiz();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (socket) {
+            setSocketConnected(socket.connected);
+            socket.on('connect', () => setSocketConnected(true));
+            socket.on('disconnect', () => setSocketConnected(false));
+            
+            socket.on('new-violation', (violation) => {
+                if (violation.status === 'pending') {
+                    setViolations(prev => [violation, ...prev]);
+                }
+            });
+        }
+        return () => {
+            if (socket) {
+                socket.off('connect');
+                socket.off('disconnect');
+                socket.off('new-violation');
+            }
+        };
+    }, [socket]);
 
     if (!localStorage.getItem('adminAuth')) {
         return null;
@@ -137,20 +159,6 @@ const AdminDashboard = () => {
     useEffect(() => {
         fetchData();
     }, [activeTab, selectedCollection]);
-
-    // Real-time violation listener
-    useEffect(() => {
-        if (socket && activeTab === 'monitoring') {
-            socket.on('new-violation', (violation) => {
-                console.log('New violation received:', violation);
-                if (violation.status === 'pending') {
-                    setViolations(prev => [violation, ...prev]);
-                }
-            });
-
-            return () => socket.off('new-violation');
-        }
-    }, [socket, activeTab]);
 
     const handleApprove = async (id, action) => {
         try {
@@ -265,6 +273,9 @@ const AdminDashboard = () => {
                 <header className="admin-header glass">
                     <h1>{activeTab.toUpperCase()}</h1>
                     <div className="header-actions">
+                        <div className={`socket-status ${socketConnected ? 'connected' : 'disconnected'}`}>
+                            {socketConnected ? '● MONITORING LIVE' : '○ DISCONNECTED'}
+                        </div>
                         <button onClick={fetchData} className="refresh-btn">
                             <RefreshCw size={18} className={loading ? 'spinning' : ''} /> Refresh
                         </button>
@@ -811,6 +822,9 @@ const AdminDashboard = () => {
         .status-badge.blocked, .status-badge.error { background: rgba(255, 0, 85, 0.1); color: var(--error); }
         .reject-btn.sm { padding: 4px 12px; font-size: 0.8rem; }
         .mt-20 { margin-top: 20px; }
+        .socket-status { font-size: 0.75rem; font-weight: 700; padding: 4px 10px; border-radius: 4px; display: flex; align-items: center; gap: 5px; }
+        .socket-status.connected { background: rgba(0, 255, 136, 0.1); color: var(--success); }
+        .socket-status.disconnected { background: rgba(255, 68, 68, 0.1); color: var(--error); }
         .upload-section { margin-bottom: 20px; }
         .upload-section h3 { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
         .file-input-wrapper { position: relative; display: inline-block; margin-top: 15px; }
