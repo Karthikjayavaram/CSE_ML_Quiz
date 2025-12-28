@@ -516,40 +516,44 @@ const AdminDashboard = () => {
                             <div className="db-content">
                                 {selectedCollection === 'quizzes' ? (
                                     <div className="quizzes-manager">
-                                        {dbData.map(quiz => (
-                                            <div key={quiz._id} className="quiz-card card glass mb-20">
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                                                    <h3>{quiz.title} {quiz.isActive && <span className="status-badge success">ACTIVE</span>}</h3>
-                                                    <button className="btn-primary sm" onClick={() => {
-                                                        setShowQuestionModal({ show: true, quizId: quiz._id, questionIndex: null });
-                                                        setQuestionForm({ question: '', options: ['', '', '', ''], correctAnswer: '', explanation: '' });
-                                                    }}>+ NEW QUESTION</button>
-                                                </div>
-                                                <div className="questions-list">
-                                                    {quiz.questions.map((q, idx) => (
-                                                        <div key={idx} className="question-item glass p-15 mb-10" style={{ borderLeft: '3px solid var(--primary)' }}>
-                                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                                <p><strong>Q{idx + 1}:</strong> {q.question}</p>
-                                                                <div className="actions">
-                                                                    <button className="edit-btn sm mr-5" onClick={() => {
-                                                                        setShowQuestionModal({ show: true, quizId: quiz._id, questionIndex: idx });
-                                                                        setQuestionForm(q);
-                                                                    }}>EDIT</button>
-                                                                    <button className="reject-btn sm" onClick={() => handleDeleteQuestion(quiz._id, idx)}>DELETE</button>
+                                        {dbData.length === 0 ? (
+                                            <div className="p-20 text-center glass card">No quizzes found. Please seed the database or add a new quiz.</div>
+                                        ) : (
+                                            dbData.map(quiz => (
+                                                <div key={quiz._id} className="quiz-card card glass mb-20">
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                                                        <h3>{quiz.title} {quiz.isActive && <span className="status-badge success">ACTIVE</span>}</h3>
+                                                        <button className="btn-primary sm" onClick={() => {
+                                                            setShowQuestionModal({ show: true, quizId: quiz._id, questionIndex: null });
+                                                            setQuestionForm({ question: '', options: ['', '', '', ''], correctAnswer: '', explanation: '' });
+                                                        }}>+ NEW QUESTION</button>
+                                                    </div>
+                                                    <div className="questions-list">
+                                                        {quiz.questions.map((q, idx) => (
+                                                            <div key={idx} className="question-item glass p-15 mb-10" style={{ borderLeft: '3px solid var(--primary)' }}>
+                                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                                    <p><strong>Q{idx + 1}:</strong> {q.question}</p>
+                                                                    <div className="actions">
+                                                                        <button className="edit-btn sm mr-5" onClick={() => {
+                                                                            setShowQuestionModal({ show: true, quizId: quiz._id, questionIndex: idx });
+                                                                            setQuestionForm(q);
+                                                                        }}>EDIT</button>
+                                                                        <button className="reject-btn sm" onClick={() => handleDeleteQuestion(quiz._id, idx)}>DELETE</button>
+                                                                    </div>
+                                                                </div>
+                                                                <div className="options-grid mt-10" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', fontSize: '0.85rem' }}>
+                                                                    {q.options.map((opt, i) => (
+                                                                        <div key={i} className={opt === q.correctAnswer ? 'success' : 'text-secondary'}>
+                                                                            {String.fromCharCode(65 + i)}) {opt} {opt === q.correctAnswer && <Check size={14} style={{ display: 'inline' }} />}
+                                                                        </div>
+                                                                    ))}
                                                                 </div>
                                                             </div>
-                                                            <div className="options-grid mt-10" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '5px', fontSize: '0.85rem' }}>
-                                                                {q.options.map((opt, i) => (
-                                                                    <div key={i} className={opt === q.correctAnswer ? 'success' : 'text-secondary'}>
-                                                                        {String.fromCharCode(65 + i)}) {opt} {opt === q.correctAnswer && <Check size={14} style={{ display: 'inline' }} />}
-                                                                    </div>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    ))}
+                                                        ))}
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        ))}
+                                            ))
+                                        )}
                                     </div>
                                 ) : (
                                     <DynamicTable 
