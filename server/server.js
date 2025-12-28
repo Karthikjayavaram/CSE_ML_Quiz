@@ -27,70 +27,34 @@ mongoose.connect(process.env.MONGODB_URI, {
     dbName: process.env.DB_NAME
 }).then(() => {
     console.log('Connected to MongoDB');
-    seedDummyData();
 }).catch(err => console.error('MongoDB connection error:', err));
 
 // Admin Basic Auth Middleware
 const adminAuth = (req, res, next) => {
     const credentials = auth(req);
-    const expectedUser = (process.env.ADMIN_USERNAME || '').trim();
-    const expectedPass = (process.env.ADMIN_PASSWORD || '').trim();
+    const expectedUser = (process.env.ADMIN_USERNAME || 'admin').trim();
+    const expectedPass = (process.env.ADMIN_PASSWORD || 'admin').trim();
 
     if (!credentials || credentials.name !== expectedUser || credentials.pass !== expectedPass) {
-        console.log(`[AUTH] Admin login failed.`);
-        console.log(`[AUTH] Sent User: "${credentials?.name}", Expected: "${expectedUser}"`);
-        console.log(`[AUTH] Password Match: ${credentials?.pass === expectedPass}`);
-        res.set('WWW-Authenticate', 'Basic realm="example"');
+        console.log(`[AUTH] Admin access denied.`);
         return res.status(401).send('Authentication required');
     }
     next();
 };
 
 // Seed Dummy Data
-async function seedDummyData() {
-    const studentCount = await Student.countDocuments();
-    if (studentCount === 0) {
-        const dummyStudents = [
-            { techziteId: 'TZ2025001', name: 'John Doe', phone: '9876543210', email: 'john@example.com', branch: 'CSE', status: 'completed', score: 18, duration: 450 },
-            { techziteId: 'TZ2025002', name: 'Jane Smith', phone: '8765432109', email: 'jane@example.com', branch: 'ECE', status: 'pending' },
-            { techziteId: 'TZ2025003', name: 'Karthik V', phone: '1234567890', email: 'karthik@example.com', branch: 'AI', status: 'completed', score: 20, duration: 400 },
-            { techziteId: 'TZ2025004', name: 'Alice Wong', phone: '5555555555', email: 'alice@example.com', branch: 'ML', status: 'blocked', violationCount: 2 }
-        ];
-        await Student.insertMany(dummyStudents);
-        console.log('Comprehensive dummy students seeded');
-
-        // Seed some results and violations for the seeded students
-        const john = await Student.findOne({ techziteId: 'TZ2025001' });
-        const karthik = await Student.findOne({ techziteId: 'TZ2025003' });
-        const alice = await Student.findOne({ techziteId: 'TZ2025004' });
-        const quiz = await Quiz.findOne();
-
-        if (quiz) {
-            await Result.create([
-                { student: john._id, quiz: quiz._id, score: 18, totalQuestions: 20, duration: 450 },
-                { student: karthik._id, quiz: quiz._id, score: 20, totalQuestions: 20, duration: 400 }
-            ]);
-            await Violation.create([
-                { studentId: 'TZ2025004', studentName: 'Alice Wong', type: 'Tab Switch', count: 1, status: 'approved' },
-                { studentId: 'TZ2025004', studentName: 'Alice Wong', type: 'Fullscreen Exit', count: 2, status: 'pending' }
-            ]);
-        }
-
-        const quizCount = await Quiz.countDocuments();
-        if (quizCount === 0) {
-            const mlQuestions = require('./data/questions.json');
-            await Quiz.create({ title: 'ML Technical Quiz', questions: mlQuestions });
-            console.log('Dummy quiz seeded');
-        }
-    }
-}
-
 // Routes
 app.post('/api/student/login', async (req, res) => {
     const { techziteId, phone } = req.body;
+    const trimmedId = techziteId?.trim();
+    const trimmedPhone = phone?.trim();
+
+    console.log(`[STUDENT LOGIN] ID: "${trimmedId}", Phone: "${trimmedPhone}"`);
+
     try {
-        const student = await Student.findOne({ techziteId, phone });
+        const student = await Student.findOne({ techziteId: trimmedId, phone: trimmedPhone });
         if (!student) {
+            console.log(`[LOGIN FAILED] No student found for ID: "${trimmedId}" and Phone: "${trimmedPhone}"`);
             return res.status(401).json({ message: 'Invalid credentials' });
         }
 
@@ -172,16 +136,13 @@ app.post('/api/quiz/submit', async (req, res) => {
 app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body;
     const expectedUser = (process.env.ADMIN_USERNAME || 'admin').trim();
-    const expectedPass = (process.env.ADMIN_PASSWORD || 'admin123').trim();
-
-    console.log(`[LOGIN ATTEMPT] Received: "${username}", Expected: "${expectedUser}"`);
+    const expectedPass = (process.env.ADMIN_PASSWORD || 'admin').trim();
 
     if (username?.trim() === expectedUser && password?.trim() === expectedPass) {
         console.log(`[LOGIN SUCCESS] Admin logged in: ${username}`);
         const authKey = Buffer.from(`${expectedUser}:${expectedPass}`).toString('base64');
         return res.json({ success: true, auth: authKey });
     } else {
-        console.log(`[LOGIN FAILED] Credentials mismatch.`);
         return res.status(401).json({ message: 'Invalid admin credentials' });
     }
 });
@@ -336,62 +297,6 @@ app.post('/api/admin/db/:collection', adminAuth, async (req, res) => {
         res.json(created);
     } catch (err) {
         res.status(500).json({ message: 'Server error', error: err.message });
-    }
-});
-
-// Manual Seed Endpoint - Force re-populate all collections with dummy data
-app.post('/api/admin/seed', adminAuth, async (req, res) => {
-    try {
-        // Clear existing data
-        await Student.deleteMany({});
-        await Result.deleteMany({});
-        await Violation.deleteMany({});
-        await Quiz.deleteMany({});
-
-        // Seed Students
-        const dummyStudents = [
-            { techziteId: 'TZ2025001', name: 'John Doe', phone: '9876543210', email: 'john@example.com', branch: 'CSE', status: 'completed', score: 18, duration: 450 },
-            { techziteId: 'TZ2025002', name: 'Jane Smith', phone: '8765432109', email: 'jane@example.com', branch: 'ECE', status: 'pending' },
-            { techziteId: 'TZ2025003', name: 'Karthik V', phone: '1234567890', email: 'karthik@example.com', branch: 'AI', status: 'completed', score: 20, duration: 400 },
-            { techziteId: 'TZ2025004', name: 'Alice Wong', phone: '5555555555', email: 'alice@example.com', branch: 'ML', status: 'blocked', violationCount: 2 },
-            { techziteId: 'TZ2025005', name: 'Bob Johnson', phone: '6666666666', email: 'bob@example.com', branch: 'DS', status: 'pending' },
-            { techziteId: 'TZ2025006', name: 'Eve Williams', phone: '7777777777', email: 'eve@example.com', branch: 'CSE', status: 'active' }
-        ];
-        await Student.insertMany(dummyStudents);
-
-        // Seed Quiz
-        const mlQuestions = require('./data/questions.json');
-        const quiz = await Quiz.create({ title: 'ML Technical Quiz', questions: mlQuestions, isActive: true });
-
-        // Get created students
-        const john = await Student.findOne({ techziteId: 'TZ2025001' });
-        const karthik = await Student.findOne({ techziteId: 'TZ2025003' });
-
-        // Seed Results
-        await Result.create([
-            { student: john._id, quiz: quiz._id, score: 18, totalQuestions: 20, duration: 450 },
-            { student: karthik._id, quiz: quiz._id, score: 20, totalQuestions: 20, duration: 400 }
-        ]);
-
-        // Seed Violations
-        await Violation.create([
-            { studentId: 'TZ2025004', studentName: 'Alice Wong', type: 'Tab Switch', count: 1, status: 'approved' },
-            { studentId: 'TZ2025004', studentName: 'Alice Wong', type: 'Fullscreen Exit', count: 2, status: 'pending' },
-            { studentId: 'TZ2025006', studentName: 'Eve Williams', type: 'Tab Switch', count: 1, status: 'pending' }
-        ]);
-
-        res.json({
-            message: 'Database seeded successfully!',
-            counts: {
-                students: 6,
-                quizzes: 1,
-                results: 2,
-                violations: 3
-            }
-        });
-    } catch (err) {
-        console.error('Seed error:', err);
-        res.status(500).json({ message: 'Seed failed', error: err.message });
     }
 });
 
