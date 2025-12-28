@@ -181,7 +181,7 @@ const Quiz = () => {
     setAnswers(newAnswers);
 
     if (currentIndex < quizData.questions.length - 1) {
-      setCurrentIndex(prev => prev + 1);
+      setCurrentQuestion(prev => prev + 1);
       setSelectedOption('');
       setTimeLeft(quizData.durationPerQuestion);
     } else {
