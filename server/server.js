@@ -127,7 +127,14 @@ app.get('/api/student/status/:techziteId', async (req, res) => {
 
 app.get('/api/quiz/active', async (req, res) => {
     try {
-        const quiz = await Quiz.findOne({ isActive: true });
+        const quiz = await Quiz.findOne({ isActive: true }).lean();
+        if (quiz && quiz.questions) {
+            // Shuffle questions for randomization
+            for (let i = quiz.questions.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [quiz.questions[i], quiz.questions[j]] = [quiz.questions[j], quiz.questions[i]];
+            }
+        }
         res.json(quiz);
     } catch (err) {
         res.status(500).json({ message: 'Server error' });
@@ -164,14 +171,17 @@ app.post('/api/quiz/submit', async (req, res) => {
 // Admin Routes
 app.post('/api/admin/login', (req, res) => {
     const { username, password } = req.body;
-    const expectedUser = (process.env.ADMIN_USERNAME || '').trim();
-    const expectedPass = (process.env.ADMIN_PASSWORD || '').trim();
+    const expectedUser = (process.env.ADMIN_USERNAME || 'admin').trim();
+    const expectedPass = (process.env.ADMIN_PASSWORD || 'admin123').trim();
+
+    console.log(`[LOGIN ATTEMPT] Received: "${username}", Expected: "${expectedUser}"`);
 
     if (username?.trim() === expectedUser && password?.trim() === expectedPass) {
         console.log(`[LOGIN SUCCESS] Admin logged in: ${username}`);
-        return res.json({ success: true, auth: btoa(`${expectedUser}:${expectedPass}`) });
+        const authKey = Buffer.from(`${expectedUser}:${expectedPass}`).toString('base64');
+        return res.json({ success: true, auth: authKey });
     } else {
-        console.log(`[LOGIN FAILED] Attempt with: "${username}", Expected: "${expectedUser}"`);
+        console.log(`[LOGIN FAILED] Credentials mismatch.`);
         return res.status(401).json({ message: 'Invalid admin credentials' });
     }
 });
