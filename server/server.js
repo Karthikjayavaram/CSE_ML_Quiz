@@ -162,6 +162,20 @@ app.post('/api/quiz/submit', async (req, res) => {
 });
 
 // Admin Routes
+app.post('/api/admin/login', (req, res) => {
+    const { username, password } = req.body;
+    const expectedUser = (process.env.ADMIN_USERNAME || '').trim();
+    const expectedPass = (process.env.ADMIN_PASSWORD || '').trim();
+
+    if (username?.trim() === expectedUser && password?.trim() === expectedPass) {
+        console.log(`[LOGIN SUCCESS] Admin logged in: ${username}`);
+        return res.json({ success: true, auth: btoa(`${expectedUser}:${expectedPass}`) });
+    } else {
+        console.log(`[LOGIN FAILED] Attempt with: "${username}", Expected: "${expectedUser}"`);
+        return res.status(401).json({ message: 'Invalid admin credentials' });
+    }
+});
+
 app.get('/api/admin/violations', adminAuth, async (req, res) => {
     const violations = await Violation.find().sort({ createdAt: -1 });
     res.json(violations);
