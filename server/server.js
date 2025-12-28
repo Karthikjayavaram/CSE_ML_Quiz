@@ -186,14 +186,27 @@ app.get('/api/admin/results', adminAuth, async (req, res) => {
 
 app.delete('/api/admin/results/:id', adminAuth, async (req, res) => {
     try {
-        const result = await Result.findById(req.params.id);
-        if (result) {
-            // Reset student status when result is deleted so they can re-take if needed
-            await Student.findByIdAndUpdate(result.student, { status: 'pending', score: 0, duration: 0, violationCount: 0 });
+        const result = await Result.findById(req.params.id).populate('student');
+        if (result && result.student) {
+            console.log(`[RESET DEBUG] Resetting student ${result.student.name} (${result.student.techziteId}) status to pending due to result deletion.`);
+            await Student.findByIdAndUpdate(result.student._id, {
+                status: 'pending',
+                score: 0,
+                duration: 0,
+                violationCount: 0,
+                lastViolation: null
+            });
             await Result.findByIdAndDelete(req.params.id);
+            res.json({ message: 'Result deleted and student status reset successfully' });
+        } else if (result) {
+            // If student ref is missing but result exists
+            await Result.findByIdAndDelete(req.params.id);
+            res.json({ message: 'Result deleted (orphan result)' });
+        } else {
+            res.status(404).json({ message: 'Result not found' });
         }
-        res.json({ message: 'Result deleted and student status reset' });
     } catch (err) {
+        console.error('[DELETE ERROR]', err);
         res.status(500).send('Server error');
     }
 });
@@ -260,9 +273,16 @@ app.delete('/api/admin/db/:collection/:id', adminAuth, async (req, res) => {
             case 'students': deleted = await Student.findByIdAndDelete(id); break;
             case 'quizzes': deleted = await Quiz.findByIdAndDelete(id); break;
             case 'results':
-                const result = await Result.findById(id);
-                if (result) {
-                    await Student.findByIdAndUpdate(result.student, { status: 'pending', score: 0, duration: 0, violationCount: 0 });
+                const resultObj = await Result.findById(id).populate('student');
+                if (resultObj && resultObj.student) {
+                    console.log(`[RESET DEBUG] (Generic Route) Resetting student ${resultObj.student.name} to pending.`);
+                    await Student.findByIdAndUpdate(resultObj.student._id, {
+                        status: 'pending',
+                        score: 0,
+                        duration: 0,
+                        violationCount: 0,
+                        lastViolation: null
+                    });
                 }
                 deleted = await Result.findByIdAndDelete(id);
                 break;
