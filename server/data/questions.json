@@ -1,222 +1,332 @@
 [
     {
-        "question": "Which of the following metrics is most suitable for evaluating a classification model on a highly imbalanced dataset (e.g., fraud detection)?",
+        "question": "Which of the following is a supervised learning algorithm?",
         "options": [
+            "K-Means",
+            "PCA",
+            "Linear Regression",
+            "Apriori"
+        ],
+        "correctAnswer": "Linear Regression",
+        "explanation": "Linear Regression is a supervised learning algorithm used for predicting numerical values based on labeled data."
+    },
+    {
+        "question": "What is the main goal of unsupervised learning?",
+        "options": [
+            "Predict labels",
+            "Find hidden patterns",
+            "Minimize error using labeled data",
+            "Classify data into predefined classes"
+        ],
+        "correctAnswer": "Find hidden patterns",
+        "explanation": "Unsupervised learning aims to find structures or patterns in data that does not have pre-existing labels."
+    },
+    {
+        "question": "Which metric is commonly used for classification problems?",
+        "options": [
+            "MSE",
+            "R² Score",
             "Accuracy",
-            "F1-Score",
-            "Mean Squared Error",
-            "R-Squared"
+            "MAE"
         ],
-        "correctAnswer": "F1-Score",
-        "explanation": "Accuracy can be misleading on imbalanced datasets. F1-Score considers both precision and recall."
+        "correctAnswer": "Accuracy",
+        "explanation": "Accuracy measures the proportion of correct predictions among the total number of cases examined."
     },
     {
-        "question": "What happens to the Bias and Variance when you increase the complexity of a machine learning model?",
+        "question": "In K-Nearest Neighbors, what does the value of K represent?",
         "options": [
-            "Bias increases, Variance decreases",
-            "Bias decreases, Variance increases",
-            "Both increase",
-            "Both decrease"
+            "Number of clusters",
+            "Number of neighbors considered",
+            "Number of features used",
+            "Number of epochs"
         ],
-        "correctAnswer": "Bias decreases, Variance increases",
-        "explanation": "Increasing complexity allows the model to fit data better (lower bias) but makes it more sensitive to noise (higher variance)."
+        "correctAnswer": "Number of neighbors considered",
+        "explanation": "K represents the number of nearest data points (neighbors) that the algorithm uses to make a classification or regression decision."
     },
     {
-        "question": "In Lasso Regression (L1 regularization), why do some feature coefficients become exactly zero?",
+        "question": "What technique is used to handle missing values?",
         "options": [
-            "It uses the square of the weights",
-            "The penalty is based on the absolute value of the weights",
-            "It only works for linear models",
-            "It minimizes the log-likelihood"
+            "Normalization",
+            "Imputation",
+            "One-Hot Encoding",
+            "Cross-Validation"
         ],
-        "correctAnswer": "The penalty is based on the absolute value of the weights",
-        "explanation": "L1 regularization uses an absolute value penalty which has a 'corner' at zero, causing many weights to diminish to zero."
+        "correctAnswer": "Imputation",
+        "explanation": "Imputation is the process of replacing missing data with substituted values like mean, median, or mode."
     },
     {
-        "question": "What is the primary function of the 'Kernel Trick' in Support Vector Machines (SVM)?",
+        "question": "Overfitting occurs when the model:",
         "options": [
-            "To reduce the number of features",
-            "To transform data into a higher-dimensional space for linear separation",
-            "To speed up the training process",
-            "To remove outliers from the dataset"
+            "Performs well on training but poorly on test data",
+            "Performs poorly on both training and test data",
+            "Performs well on test but poorly on training data",
+            "Has very few parameters"
         ],
-        "correctAnswer": "To transform data into a higher-dimensional space for linear separation",
-        "explanation": "Kernels allow SVMs to perform non-linear classification by implicitly mapping inputs into high-dimensional feature spaces."
+        "correctAnswer": "Performs well on training but poorly on test data",
+        "explanation": "Overfitting happens when a model learns the detail and noise in the training data to an extent that it negatively impacts the performance of the model on new data."
     },
     {
-        "question": "Which ensemble method builds multiple trees independently and averages their predictions to reduce variance?",
+        "question": "Which of the following is a dimensionality reduction method?",
         "options": [
-            "AdaBoost",
-            "XGBoost",
             "Random Forest",
-            "Gradient Boosting"
+            "Gradient Boosting",
+            "PCA",
+            "Logistic Regression"
         ],
-        "correctAnswer": "Random Forest",
-        "explanation": "Random Forest uses 'Bagging' (Bootstrap Aggregating) to build trees in parallel and average them."
+        "correctAnswer": "PCA",
+        "explanation": "Principal Component Analysis (PCA) is a popular technique for dimensionality reduction by transforming large sets of variables into smaller ones."
     },
     {
-        "question": "In Neural Networks, what is the purpose of the 'Softmax' activation function in the output layer?",
+        "question": "Which loss function is used in Logistic Regression?",
         "options": [
-            "To introduce non-linearity",
-            "To prevent vanishing gradients",
-            "To produce a probability distribution over multiple classes",
-            "To normalize input data"
+            "Hinge Loss",
+            "Cross-Entropy Loss",
+            "MSE",
+            "MAE"
         ],
-        "correctAnswer": "To produce a probability distribution over multiple classes",
-        "explanation": "Softmax ensures the output values sum to 1, representing probabilities for each class."
+        "correctAnswer": "Cross-Entropy Loss",
+        "explanation": "Logistic regression uses Log Loss or Cross-Entropy Loss to measure the performance of a classification model whose output is a probability value."
     },
     {
-        "question": "What is the primary goal of Principal Component Analysis (PCA)?",
+        "question": "What does confusion matrix help evaluate?",
         "options": [
-            "Classification",
-            "Feature Selection",
-            "Dimensionality Reduction",
-            "Clustering"
+            "Regression performance",
+            "Classification performance",
+            "Clustering performance",
+            "Feature importance"
         ],
-        "correctAnswer": "Dimensionality Reduction",
-        "explanation": "PCA transforms data into a lower-dimensional space while retaining as much variance as possible."
+        "correctAnswer": "Classification performance",
+        "explanation": "A confusion matrix is a table that is often used to describe the performance of a classification model on a set of test data for which the true values are known."
     },
     {
-        "question": "Which optimization algorithm adaptively changes the learning rate for each parameter based on past gradients?",
+        "question": "Which algorithm uses the concept of boosting?",
         "options": [
-            "Stochastic Gradient Descent (SGD)",
-            "Adam",
-            "Momentum",
-            "Nesterov Accelerated Gradient"
-        ],
-        "correctAnswer": "Adam",
-        "explanation": "Adam (Adaptive Moment Estimation) maintains per-parameter learning rates."
-    },
-    {
-        "question": "In Market Basket Analysis, 'Lift' is defined as:",
-        "options": [
-            "The probability that B occurs given A",
-            "The ratio of observed support to that expected if A and B were independent",
-            "The percentage of transactions containing both A and B",
-            "The popularity of item A"
-        ],
-        "correctAnswer": "The ratio of observed support to that expected if A and B were independent",
-        "explanation": "Lift measures how much more likely item B is purchased given item A, compared to its general popularity."
-    },
-    {
-        "question": "Which problem occurs when a neural network is too deep and gradients become extremely small during backpropagation?",
-        "options": [
-            "Exploding Gradient Problem",
-            "Overfitting",
-            "Vanishing Gradient Problem",
-            "Underfitting"
-        ],
-        "correctAnswer": "Vanishing Gradient Problem",
-        "explanation": "Vanishing gradients prevent early layers from learning effectively in deep networks."
-    },
-    {
-        "question": "What does a ROC curve (Receiver Operating Characteristic) plot?",
-        "options": [
-            "Precision vs Recall",
-            "True Positive Rate vs False Positive Rate",
-            "Accuracy vs Loss",
-            "Bias vs Variance"
-        ],
-        "correctAnswer": "True Positive Rate vs False Positive Rate",
-        "explanation": "ROC curve shows the tradeoff between sensitivity and specificity at various thresholds."
-    },
-    {
-        "question": "If your model performs very well on training data but poorly on test data, it is likely suffering from:",
-        "options": [
-            "High Bias",
-            "Overfitting",
-            "Underfitting",
-            "Data Leakage"
-        ],
-        "correctAnswer": "Overfitting",
-        "explanation": "Overfitting occurs when the model learns noise and specific details of the training set."
-    },
-    {
-        "question": "Which SVM kernel is typically used when the relationship between features is unknown and likely non-linear?",
-        "options": [
-            "Linear Kernel",
-            "Polynomial Kernel",
-            "RBF (Radial Basis Function) Kernel",
-            "Sigmoid Kernel"
-        ],
-        "correctAnswer": "RBF (Radial Basis Function) Kernel",
-        "explanation": "RBF is the most versatile and commonly used non-linear kernel."
-    },
-    {
-        "question": "The 'Support Vectors' in SVM are:",
-        "options": [
-            "The outliers in the dataset",
-            "The points furthest from the hyperplane",
-            "The points closest to or on the decision boundary",
-            "Points that are incorrectly classified"
-        ],
-        "correctAnswer": "The points closest to or on the decision boundary",
-        "explanation": "Support vectors define the maximum margin hyperplane."
-    },
-    {
-        "question": "Batch Normalization is used in neural networks primarily to:",
-        "options": [
-            "Increase dropout rate",
-            "Stabilize and speed up training by normalizing layer inputs",
-            "Reduce the number of neurons",
-            "Prevent the network from being too shallow"
-        ],
-        "correctAnswer": "Stabilize and speed up training by normalizing layer inputs",
-        "explanation": "It reduces internal covariate shift."
-    },
-    {
-        "question": "K-Means clustering is what type of learning algorithm?",
-        "options": [
-            "Supervised",
-            "Unsupervised",
-            "Reinforcement",
-            "Semi-supervised"
-        ],
-        "correctAnswer": "Unsupervised",
-        "explanation": "It groups data without pre-labeled targets."
-    },
-    {
-        "question": "In the context of Ridge Regression (L2), how does the lambda parameter affect the model?",
-        "options": [
-            "Larger lambda increases the weights",
-            "Larger lambda forces weights towards zero but not exactly zero",
-            "Smaller lambda increases bias",
-            "Lambda has no effect on model complexity"
-        ],
-        "correctAnswer": "Larger lambda forces weights towards zero but not exactly zero",
-        "explanation": "L2 regularization penalizes the square of the weights, leading to smaller coefficients."
-    },
-    {
-        "question": "Cross-validation is used primarily to:",
-        "options": [
-            "Speed up training",
-            "Select the best activation function",
-            "Estimate how well a model will generalize to an independent dataset",
-            "Increase the size of the training set"
-        ],
-        "correctAnswer": "Estimate how well a model will generalize to an independent dataset",
-        "explanation": "It helps in assessing the model's performance on unseen data reliably."
-    },
-    {
-        "question": "What is the purpose of 'Dropout' in a Neural Network?",
-        "options": [
-            "To speed up inference",
-            "To prevent overfitting by randomly disabling neurons during training",
-            "To increase the learning rate",
-            "To replace activation functions"
-        ],
-        "correctAnswer": "To prevent overfitting by randomly disabling neurons during training",
-        "explanation": "Dropout is a regularization technique that prevents co-adaptation of neurons."
-    },
-    {
-        "question": "Which algorithm uses the concept of 'Finding the best split by maximizing Information Gain'?",
-        "options": [
-            "Support Vector Machines",
             "Decision Tree",
-            "K-Nearest Neighbors",
-            "Linear Regression"
+            "AdaBoost",
+            "KNN",
+            "K-Means"
+        ],
+        "correctAnswer": "AdaBoost",
+        "explanation": "AdaBoost (Adaptive Boosting) is an ensemble learning method that combines multiple weak classifiers to form a strong classifier."
+    },
+    {
+        "question": "Standardization transforms data to have:",
+        "options": [
+            "Range [0,1]",
+            "Mean 0, variance 1",
+            "Only positive values",
+            "Unit vector length"
+        ],
+        "correctAnswer": "Mean 0, variance 1",
+        "explanation": "Standardization (Z-score normalization) scales data so that it has a mean of 0 and a standard deviation of 1."
+    },
+    {
+        "question": "What is the full form of MAE?",
+        "options": [
+            "Mean Absolute Error",
+            "Maximum Absolute Error",
+            "Mean Accuracy Error",
+            "Model Absolute Evaluation"
+        ],
+        "correctAnswer": "Mean Absolute Error",
+        "explanation": "MAE is a measure of errors between paired observations expressing the same phenomenon."
+    },
+    {
+        "question": "Which of the following models works well for non-linear data?",
+        "options": [
+            "Linear Regression",
+            "Logistic Regression",
+            "Decision Tree",
+            "Naive Bayes"
         ],
         "correctAnswer": "Decision Tree",
-        "explanation": "Decision trees use Information Gain or Gini Impurity to determine the best features to split on."
+        "explanation": "Decision trees can capture non-linear relationships between features and the target variable."
+    },
+    {
+        "question": "Which method splits data into training and testing multiple times?",
+        "options": [
+            "Hold-Out",
+            "Cross-Validation",
+            "Bootstrapping",
+            "Grid Search"
+        ],
+        "correctAnswer": "Cross-Validation",
+        "explanation": "Cross-validation is a resampling procedure used to evaluate machine learning models on a limited data sample."
+    },
+    {
+        "question": "What does a high bias model lead to?",
+        "options": [
+            "Overfitting",
+            "Underfitting",
+            "High variance",
+            "Perfect accuracy"
+        ],
+        "correctAnswer": "Underfitting",
+        "explanation": "High bias can cause an algorithm to miss the relevant relations between features and target outputs (underfitting)."
+    },
+    {
+        "question": "Which of the following is an ensemble learning method?",
+        "options": [
+            "SVM",
+            "Random Forest",
+            "KNN",
+            "Linear Regression"
+        ],
+        "correctAnswer": "Random Forest",
+        "explanation": "Random Forest is an ensemble learning method that operates by constructing a multitude of decision trees at training time."
+    },
+    {
+        "question": "What is the purpose of One-Hot Encoding?",
+        "options": [
+            "Convert numerical to categorical",
+            "Convert categorical to numerical",
+            "Reduce dimensions",
+            "Handle outliers"
+        ],
+        "correctAnswer": "Convert categorical to numerical",
+        "explanation": "One-Hot Encoding is used to convert categorical variables into a form that could be provided to ML algorithms to do a better job in prediction."
+    },
+    {
+        "question": "Which metric indicates how much variance is explained by the regression model?",
+        "options": [
+            "MAE",
+            "MSE",
+            "R² Score",
+            "Accuracy"
+        ],
+        "correctAnswer": "R² Score",
+        "explanation": "R-squared (R²) is a statistical measure that represents the proportion of the variance for a dependent variable that's explained by an independent variable."
+    },
+    {
+        "question": "Support Vector Machines try to maximize:",
+        "options": [
+            "Training accuracy",
+            "Margin between classes",
+            "Number of support vectors",
+            "Learning rate"
+        ],
+        "correctAnswer": "Margin between classes",
+        "explanation": "SVM aims to find the hyperplane that has the maximum margin between two classes."
+    },
+    {
+        "question": "If a model is too sensitive to small fluctuations in training data, it has:",
+        "options": [
+            "High bias",
+            "High variance",
+            "Low complexity",
+            "High regularization"
+        ],
+        "correctAnswer": "High variance",
+        "explanation": "High variance occurs when a model is overly complex and learns noise in the training data (overfitting)."
+    },
+    {
+        "question": "What is the output of np.array([1,2,3]) + 1?",
+        "options": [
+            "Error",
+            "[2,3,4]",
+            "[1,2,3,1]",
+            "[1,2,3]"
+        ],
+        "correctAnswer": "[2,3,4]",
+        "explanation": "NumPy uses broadcasting to add the scalar 1 to each element of the array."
+    },
+    {
+        "question": "Which function reshapes an array without changing data?",
+        "options": [
+            "np.resize()",
+            "arr.reshape()",
+            "np.append()",
+            "np.expand_dims()"
+        ],
+        "correctAnswer": "arr.reshape()",
+        "explanation": "The reshape() function is used to give a new shape to an array without changing its data."
+    },
+    {
+        "question": "np.linspace(0, 10, 5) returns:",
+        "options": [
+            "5 values from 0 to 10 with equal spacing",
+            "5 random values between 0 and 10",
+            "Values from 0 to 10 with step 5",
+            "Only integers"
+        ],
+        "correctAnswer": "5 values from 0 to 10 with equal spacing",
+        "explanation": "np.linspace creates an array of evenly spaced numbers over a specified interval."
+    },
+    {
+        "question": "Which method returns the index of the maximum value?",
+        "options": [
+            "np.max()",
+            "np.argmax()",
+            "np.maximum()",
+            "arr.max_index()"
+        ],
+        "correctAnswer": "np.argmax()",
+        "explanation": "np.argmax() returns the indices of the maximum values along an axis."
+    },
+    {
+        "question": "NumPy arrays are faster than lists because they are:",
+        "options": [
+            "Dynamic typed",
+            "Stored in contiguous memory",
+            "Mutable dictionaries",
+            "Interpreted objects"
+        ],
+        "correctAnswer": "Stored in contiguous memory",
+        "explanation": "NumPy arrays are stored at one continuous place in memory unlike lists, so processes can access and manipulate them very efficiently."
+    },
+    {
+        "question": "Which of the following reads a CSV file in pandas?",
+        "options": [
+            "pd.read_csv()",
+            "pd.load_csv()",
+            "pd.open_csv()",
+            "pd.import_csv()"
+        ],
+        "correctAnswer": "pd.read_csv()",
+        "explanation": "pd.read_csv() is the standard function to read comma-separated values (csv) file into DataFrame."
+    },
+    {
+        "question": "df.isnull().sum() gives:",
+        "options": [
+            "Total rows",
+            "Sum of all numeric columns",
+            "Count of missing values per column",
+            "Error"
+        ],
+        "correctAnswer": "Count of missing values per column",
+        "explanation": "isnull() identifies missing values, and sum() aggregates them per column."
+    },
+    {
+        "question": "How do you create a DataFrame?",
+        "options": [
+            "pd.DataFrame()",
+            "np.DataFrame()",
+            "df.create()",
+            "pd.frame()"
+        ],
+        "correctAnswer": "pd.DataFrame()",
+        "explanation": "pd.DataFrame() is the constructor used to create a new DataFrame object in Pandas."
+    },
+    {
+        "question": "Which function shows first 5 rows by default?",
+        "options": [
+            "df.start()",
+            "df.first()",
+            "df.head()",
+            "df.top()"
+        ],
+        "correctAnswer": "df.head()",
+        "explanation": "The head() function returns the first n (default 5) rows of the object."
+    },
+    {
+        "question": "Which method removes rows containing missing values?",
+        "options": [
+            "df.fillna()",
+            "df.dropnull()",
+            "df.dropna()",
+            "df.remove_na()"
+        ],
+        "correctAnswer": "df.dropna()",
+        "explanation": "dropna() removes missing values from a DataFrame or Series."
     }
 ]
