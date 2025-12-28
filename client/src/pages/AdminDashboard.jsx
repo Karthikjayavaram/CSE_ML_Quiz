@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useQuiz } from '../context/QuizContext';
 import { LayoutDashboard, Users, AlertTriangle, Trophy, Search, RefreshCw, Check, X } from 'lucide-react';
@@ -89,7 +90,13 @@ const AdminDashboard = () => {
     const [editForm, setEditForm] = useState({});
     const [showAddModal, setShowAddModal] = useState(false);
     const [addForm, setAddForm] = useState({});
-    const { socket } = useQuiz();
+    const [confirmDelete, setConfirmDelete] = useState({ show: false, id: null, type: null });
+    const { socket, logout } = useQuiz();
+    const navigate = useNavigate();
+
+    if (!localStorage.getItem('adminAuth')) {
+        return null;
+    }
 
     const auth = localStorage.getItem('adminAuth');
     const headers = { Authorization: `Basic ${auth}` };
@@ -113,7 +120,10 @@ const AdminDashboard = () => {
             }
         } catch (err) {
             console.error("Fetch failed", err);
-            // alert("Failed to fetch data. Ensure server is running on port 5000.");
+            if (err.response?.status === 401) {
+                logout();
+                navigate('/admin-login');
+            }
         } finally {
             setLoading(false);
         }
@@ -217,9 +227,14 @@ const AdminDashboard = () => {
             <div className="admin-main">
                 <header className="admin-header glass">
                     <h1>{activeTab.toUpperCase()}</h1>
-                    <button onClick={fetchData} className="refresh-btn">
-                        <RefreshCw size={18} className={loading ? 'spinning' : ''} /> Refresh
-                    </button>
+                    <div className="header-actions">
+                        <button onClick={fetchData} className="refresh-btn">
+                            <RefreshCw size={18} className={loading ? 'spinning' : ''} /> Refresh
+                        </button>
+                        <button onClick={() => { logout(); navigate('/admin-login'); }} className="logout-btn">
+                            LOGOUT
+                        </button>
+                    </div>
                 </header>
 
                 <div className="admin-content">
@@ -305,7 +320,14 @@ const AdminDashboard = () => {
                                                 <td className="score-cell">{r.score}</td>
                                                 <td>{r.duration}s</td>
                                                 <td>
-                                                    <span className="info-text">Manual entry</span>
+                                                    <button className="reject-btn sm" onClick={() => {
+                                                        setConfirmDelete({ 
+                                                             show: true, 
+                                                             id: r._id, 
+                                                             type: 'result',
+                                                             msg: `Are you sure you want to delete the results for ${r.student?.name}? This will allow the student to retake the quiz.`
+                                                         });
+                                                    }}>DELETE RESULT</button>
                                                 </td>
                                             </tr>
                                         ))}
@@ -562,6 +584,33 @@ const AdminDashboard = () => {
                 </div>
             )}
 
+            {/* Confirmation Modal */}
+            {confirmDelete.show && (
+                <div className="modal-overlay glass">
+                    <div className="card glass modal-content confirmation-modal">
+                        <AlertTriangle size={48} className="icon-warning mb-20" />
+                        <h2>Confirm Deletion</h2>
+                        <p className="mb-20">{confirmDelete.msg}</p>
+                        <div className="modal-actions">
+                            <button className="reject-btn" onClick={async () => {
+                                try {
+                                    if (confirmDelete.type === 'result') {
+                                        await axios.delete(`${API_BASE}/admin/results/${confirmDelete.id}`, { headers });
+                                    } else if (confirmDelete.type === 'student') {
+                                        await axios.delete(`${API_BASE}/admin/students/${confirmDelete.id}`, { headers });
+                                    }
+                                    setConfirmDelete({ show: false, id: null, type: null });
+                                    fetchData();
+                                } catch (err) {
+                                    alert('Deletion failed: ' + (err.response?.data?.message || err.message));
+                                }
+                            }}>YES, DELETE</button>
+                            <button className="btn-secondary" onClick={() => setConfirmDelete({ show: false, id: null, type: null })}>CANCEL</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
       <style jsx="true">{`
         .admin-dashboard { display: flex; min-height: 100vh; background: #05060a; }
         .admin-sidebar { width: 280px; padding: 40px 20px; border-right: 1px solid rgba(255, 255, 255, 0.05); }
@@ -586,7 +635,9 @@ const AdminDashboard = () => {
         .admin-main { flex: 1; padding: 40px; overflow-y: auto; }
         .admin-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; border-radius: 12px; margin-bottom: 30px; }
         .admin-header h1 { font-size: 1.5rem; letter-spacing: 2px; }
-        .refresh-btn { display: flex; align-items: center; gap: 8px; background: rgba(255, 255, 255, 0.05); padding: 8px 16px; font-size: 0.9rem; }
+        .header-actions { display: flex; gap: 10px; align-items: center; }
+        .logout-btn { background: rgba(255, 68, 68, 0.1); color: var(--error); border: 1px solid var(--error); padding: 8px 16px; font-size: 0.9rem; font-weight: 700; border-radius: 8px; }
+        .logout-btn:hover { background: var(--error); color: white; }
         .spinning { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
@@ -633,6 +684,9 @@ const AdminDashboard = () => {
         .edit-form textarea { height: 150px; font-family: monospace; }
         .modal-actions { display: flex; gap: 15px; justify-content: flex-end; }
         .mb-10 { margin-bottom: 10px; }
+        .icon-warning { color: var(--warning); display: block; margin: 0 auto; }
+        .confirmation-modal { text-align: center; max-width: 450px; }
+        .confirmation-modal p { color: var(--text-secondary); line-height: 1.5; }
         .db-actions { display: flex; gap: 15px; margin-bottom: 20px; }
         .btn-secondary { background: rgba(255, 255, 255, 0.1); color: white; padding: 10px 20px; border: 1px solid rgba(255, 255, 255, 0.2); }
         .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }

@@ -25,17 +25,25 @@ const Quiz = () => {
   const navigate = useNavigate();
 
   // Redirect if no student
-  if (!student) navigate('/');
+  useEffect(() => {
+    if (!student) {
+      navigate('/');
+    }
+  }, [student, navigate]);
+
+  if (!student) return null;
 
   // Fetch Quiz and initialize violations
   useEffect(() => {
     const initQuiz = async () => {
       try {
         // Initial grace period to allow page to settle and fullscreen to activate
-        // gracePeriod is true by default now.
+        console.log("[QUIZ DEBUG] Entering initial grace period (5s)");
+        setGracePeriod(true);
+        
         setTimeout(() => {
           setGracePeriod(false);
-          console.log("Initial grace period ended");
+          console.log("[QUIZ DEBUG] Initial grace period ended");
         }, 5000);
 
         const API_BASE = config.API_BASE;
@@ -43,13 +51,16 @@ const Quiz = () => {
         const studentResp = await axios.get(`${API_BASE}/student/status/${student.techziteId}`);
         const latestStudent = studentResp.data;
         
-        if (latestStudent.violationCount) {
-          violationRef.current = latestStudent.violationCount;
-          setViolationCount(latestStudent.violationCount);
-          if (latestStudent.violationCount >= 1) { // Immediate lock on any previous violation
-            setIsLocked(true);
-            setWarningMsg("LOCKED: Previous violations detected. Admin approval required.");
-          }
+        if (latestStudent.status === 'blocked' || (latestStudent.violationCount && latestStudent.violationCount >= 2)) {
+          console.log(`[QUIZ DEBUG] Locking due to previous state: status=${latestStudent.status}, count=${latestStudent.violationCount}`);
+          violationRef.current = latestStudent.violationCount || 0;
+          setViolationCount(latestStudent.violationCount || 0);
+          setIsLocked(true);
+          setWarningMsg("LOCKED: Previous violations detected or account blocked. Admin approval required.");
+        } else {
+          console.log(`[QUIZ DEBUG] Student state OK. Violation sync: ${latestStudent.violationCount}`);
+          violationRef.current = latestStudent.violationCount || 0;
+          setViolationCount(latestStudent.violationCount || 0);
         }
 
         const quizResp = await axios.get(`${API_BASE}/quiz/active`);
@@ -150,12 +161,13 @@ const Quiz = () => {
   }, [socket, answers]);
 
   const reportViolation = (type) => {
-    console.log(`Violation attempt: ${type}. isLocked: ${isLocked}, gracePeriod: ${gracePeriod}`);
-    if (isLocked || gracePeriod) return;
+    // Only report if quiz is active and we're not in a grace period or already locked
+    if (!quizData || isLocked || gracePeriod || completed) return;
+    
+    console.log(`Violation attempt: ${type}. count: ${violationRef.current + 1}`);
     
     violationRef.current += 1;
     const newCount = violationRef.current;
-    console.log(`Reporting violation: ${type}, count: ${newCount}`);
     setViolationCount(newCount);
     
     socket.emit('report-violation', {
