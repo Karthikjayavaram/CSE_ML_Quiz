@@ -94,6 +94,7 @@ const AdminDashboard = () => {
     const [questionForm, setQuestionForm] = useState({ question: '', options: ['', '', '', ''], correctAnswer: '', explanation: '' });
     const [addForm, setAddForm] = useState({});
     const [confirmDelete, setConfirmDelete] = useState({ show: false, id: null, type: null });
+    const [searchQuery, setSearchQuery] = useState('');
     const [socketConnected, setSocketConnected] = useState(false);
     const { socket, logout } = useQuiz();
     const navigate = useNavigate();
@@ -489,11 +490,38 @@ const AdminDashboard = () => {
 
                     {activeTab === 'database' && (
                         <div className="db-management">
+                            {selectedCollection === 'students' && (
+                                <div className="search-bar card glass mb-20">
+                                    <div className="search-input-wrapper">
+                                        <Search size={20} className="search-icon" />
+                                        <input
+                                            type="text"
+                                            placeholder="Search students by name, ID, phone, email, or branch..."
+                                            value={searchQuery}
+                                            onChange={(e) => setSearchQuery(e.target.value)}
+                                            className="search-input"
+                                        />
+                                        {searchQuery && (
+                                            <button 
+                                                className="clear-search" 
+                                                onClick={() => setSearchQuery('')}
+                                                aria-label="Clear search"
+                                            >
+                                                <X size={18} />
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+                            
                             <div className="db-controls card glass mb-20">
                                 <select 
                                     className="db-select" 
                                     value={selectedCollection} 
-                                    onChange={(e) => setSelectedCollection(e.target.value)}
+                                    onChange={(e) => {
+                                        setSelectedCollection(e.target.value);
+                                        setSearchQuery(''); // Clear search when changing collections
+                                    }}
                                 >
                                     <option value="students">Students Collection</option>
                                     <option value="quizzes">Quizzes Collection</option>
@@ -557,7 +585,19 @@ const AdminDashboard = () => {
                                     </div>
                                 ) : (
                                     <DynamicTable 
-                                        data={dbData} 
+                                        data={selectedCollection === 'students' && searchQuery 
+                                            ? dbData.filter(student => {
+                                                const query = searchQuery.toLowerCase();
+                                                return (
+                                                    student.name?.toLowerCase().includes(query) ||
+                                                    student.techziteId?.toLowerCase().includes(query) ||
+                                                    student.phone?.toLowerCase().includes(query) ||
+                                                    student.email?.toLowerCase().includes(query) ||
+                                                    student.branch?.toLowerCase().includes(query)
+                                                );
+                                            })
+                                            : dbData
+                                        } 
                                         onEdit={handleEdit}
                                         showDelete={selectedCollection !== 'results'}
                                         onDelete={async (id) => {
@@ -859,6 +899,61 @@ const AdminDashboard = () => {
         .btn-secondary { background: rgba(255, 255, 255, 0.1); color: white; padding: 10px 20px; border: 1px solid rgba(255, 255, 255, 0.2); }
         .btn-secondary:hover { background: rgba(255, 255, 255, 0.15); }
         .info-text { color: var(--text-secondary); font-style: italic; padding: 20px; text-align: center; }
+        
+        /* Search Bar Styles */
+        .search-bar { padding: 20px; }
+        .search-input-wrapper { 
+          position: relative; 
+          display: flex; 
+          align-items: center; 
+          width: 100%;
+        }
+        .search-icon { 
+          position: absolute; 
+          left: 15px; 
+          color: var(--text-secondary); 
+          pointer-events: none;
+          z-index: 1;
+        }
+        .search-input { 
+          width: 100%; 
+          padding: 12px 45px 12px 45px; 
+          background: rgba(255, 255, 255, 0.05); 
+          border: 1px solid rgba(255, 255, 255, 0.1); 
+          border-radius: 8px; 
+          color: white; 
+          font-size: 0.95rem;
+          transition: all 0.3s ease;
+        }
+        .search-input:focus { 
+          outline: none; 
+          border-color: var(--primary); 
+          background: rgba(255, 255, 255, 0.08);
+          box-shadow: 0 0 0 3px rgba(112, 0, 255, 0.1);
+        }
+        .search-input::placeholder { 
+          color: var(--text-secondary); 
+          opacity: 0.6;
+        }
+        .clear-search { 
+          position: absolute; 
+          right: 12px; 
+          background: rgba(255, 255, 255, 0.1); 
+          border: none; 
+          color: var(--text-secondary); 
+          padding: 6px; 
+          border-radius: 50%; 
+          cursor: pointer; 
+          display: flex; 
+          align-items: center; 
+          justify-content: center;
+          transition: all 0.2s ease;
+        }
+        .clear-search:hover { 
+          background: rgba(255, 68, 68, 0.2); 
+          color: var(--error);
+          transform: scale(1.1);
+        }
 
         @media (max-width: 1024px) {
           .admin-sidebar { width: 80px; padding: 20px 10px; }
