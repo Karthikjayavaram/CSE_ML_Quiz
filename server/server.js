@@ -109,18 +109,41 @@ app.post('/api/quiz/submit', async (req, res) => {
     const { techziteId, score, duration, answers } = req.body;
     try {
         const student = await Student.findOne({ techziteId });
+        if (!student) {
+            return res.status(404).json({ message: 'Student not found' });
+        }
+
         const quiz = await Quiz.findOne({ isActive: true });
+        if (!quiz) {
+            return res.status(404).json({ message: 'No active quiz found' });
+        }
 
-        const result = new Result({
-            student: student._id,
-            quiz: quiz._id,
-            score,
-            totalQuestions: quiz.questions.length,
-            duration,
-            answers
-        });
+        // Check if a result already exists for this student
+        const existingResult = await Result.findOne({ student: student._id });
 
-        await result.save();
+        if (existingResult) {
+            // Update existing result instead of creating duplicate
+            console.log(`[SUBMIT] Updating existing result for ${techziteId}`);
+            existingResult.score = score;
+            existingResult.duration = duration;
+            existingResult.answers = answers;
+            existingResult.totalQuestions = quiz.questions.length;
+            await existingResult.save();
+        } else {
+            // Create new result
+            console.log(`[SUBMIT] Creating new result for ${techziteId}`);
+            const result = new Result({
+                student: student._id,
+                quiz: quiz._id,
+                score,
+                totalQuestions: quiz.questions.length,
+                duration,
+                answers
+            });
+            await result.save();
+        }
+
+        // Update student status
         student.status = 'completed';
         student.score = score;
         student.duration = duration;
@@ -128,6 +151,7 @@ app.post('/api/quiz/submit', async (req, res) => {
 
         res.json({ message: 'Quiz submitted successfully' });
     } catch (err) {
+        console.error('[SUBMIT ERROR]', err);
         res.status(500).json({ message: 'Server error' });
     }
 });
