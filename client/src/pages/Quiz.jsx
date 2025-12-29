@@ -158,12 +158,16 @@ const Quiz = () => {
             } catch(e) {}
           }, 3000);
         } else {
-          submitQuiz(answers);
+          // Violation rejected - end quiz without submitting
+          // (Quiz should only be submitted on normal completion)
+          console.log('[VIOLATION] Admin rejected - ending quiz');
+          setCompleted(true);
+          navigate('/completion');
         }
       });
     }
     return () => socket?.off('violation-resolved');
-  }, [socket, answers]);
+  }, [socket, navigate]);
 
   const reportViolation = (type) => {
     // Only report if quiz is active and we're not in a grace period or already locked
